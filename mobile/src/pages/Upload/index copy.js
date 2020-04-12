@@ -1,54 +1,51 @@
-import FormData from 'form-data';
-import axios from 'axios';
 import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
 import styles from './styles'
+import api from "../../Services/api";
 
-const createFormData = (photo, body) => {
+
+function uploadVideo(uploadedFile){
   const data = new FormData();
-  data.append('file', {
-      name: photo.filename,
-      uri: Platform.OS === 'android' ? photo.uri : photo.uri.replace('file://', ''),
-  });
 
-  Object.keys(body).forEach(key => {
-      data.append(key, body[key]);
-  });
+  data.append("file", uploadedFile.localUri, uploadedFile.name);
+  console.log(uploadedFile.localUri),
+  console.log(uploadedFile.name),
+  api.post("upload", data);
 
-  return data;
-};
-
+}     
 
 export default function Upload() {
-  let [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
  
-  let openImagePickerAsync = async () => {
-    let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
+  const openImagePickerAsync = async () => {
+    const permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
 
     if (permissionResult.granted === false) {
       alert('Permission to access camera roll is required!');
       return;
     }
 
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({mediaTypes: ImagePicker.MediaTypeOptions.Videos,});
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({mediaTypes: ImagePicker.MediaTypeOptions.Videos,});
 
     if (pickerResult.cancelled === true) {
       return;
     }
-
+   
     setSelectedImage({ 
       localUri: pickerResult.uri,
-      name: pickerResult.name,
+      name: "videoteste",
       type: pickerResult.type,
       widht: pickerResult.width,
-      height: pickerResult.height
-    });
+      height: pickerResult.height,
+      destination: 'teste'
+      });
+    
+    
   };
 
   if (selectedImage !== null) {
-    
     return (
       
       <View style={styles.container}>
@@ -60,10 +57,16 @@ export default function Upload() {
                 useNativeControls={true}
                 resizeMode="cover"
                 usePoster = {true}
-                style={{ width: selectedImage.widht /2 , height: selectedImage.height / 2 }}
+                style={{ width: selectedImage.widht /4 , height: selectedImage.height / 4 }}
          />
-        
+
+        <View>
+          <TouchableOpacity onPress={uploadVideo(selectedImage)} style={styles.action}>
+            <Text style={styles.actionText}>Cadastrar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
     );
   }
 

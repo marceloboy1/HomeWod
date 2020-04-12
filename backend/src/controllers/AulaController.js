@@ -26,14 +26,12 @@ module.exports = {
   
     async create(request, response){
         
-        console.log(request.file.destination)
-        console.log(request.file.filename)
+        console.log(request.file)
         const { title, description } = request.body;
         console.log(title)
         const professor_id = request.headers.authorization;
         const videoName = request.file.filename;
-        const url = request.file.destination;
-
+        const url = "/home/marceloboy1/dev/HomeWod/backend/tmp"
         const [id] = await connection('aulas').insert({
             title,
             description,
